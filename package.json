@@ -20,7 +20,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "homepage": "https://master.d355yvbs59tt86.amplifyapp.com",
+  "homepage": ".",
   "browserslist": {
     "production": [
       ">0.2%",
