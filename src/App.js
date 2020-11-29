@@ -39,6 +39,7 @@ const App = () => {
 
   return (
     <div className="App">
+      <div>AWS IoT test UI</div>
       <div>
         <label>TOPIC:
           <input type="text" onChange={handleChangeTopic}></input>
