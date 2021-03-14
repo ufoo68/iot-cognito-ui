@@ -4,6 +4,7 @@ import { withAuthenticator } from 'aws-amplify-react'
 import Amplify, { PubSub } from 'aws-amplify'
 import { AWSIoTProvider } from '@aws-amplify/pubsub'
 import cryptoRandomString from 'crypto-random-string'
+import '@aws-amplify/ui/dist/style.css'
 
 Amplify.configure({
   Auth: {
