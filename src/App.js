@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
-import './App.css'
 import { withAuthenticator } from 'aws-amplify-react'
 import Amplify, { PubSub } from 'aws-amplify'
 import { AWSIoTProvider } from '@aws-amplify/pubsub'
 import cryptoRandomString from 'crypto-random-string'
+import Button from '@material-ui/core/Button'
+import { makeStyles } from '@material-ui/core/styles'
 import '@aws-amplify/ui/dist/style.css'
 
 Amplify.configure({
@@ -18,32 +19,39 @@ Amplify.configure({
 Amplify.addPluggable(new AWSIoTProvider({
   aws_pubsub_region: process.env.REACT_APP_REGION,
   aws_pubsub_endpoint: `wss://${process.env.REACT_APP_PUBSUB_ENDPOINT}/mqtt`,
-  clientId: cryptoRandomString({length: 10}),
+  clientId: cryptoRandomString({ length: 10 }),
 }))
 
 const topic = process.env.REACT_APP_TOPIC
 
+const useStyles = makeStyles(() => ({
+  App: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'column',
+    fontSize: '2rem',
+  },
+}))
+
+const open = () => {
+  PubSub.publish(`${topic}/open`, 'open')
+}
+
+const close = () => {
+  PubSub.publish(`${topic}/close`, 'close')
+}
+
 const App = () => {
-  const [message, setMessage] = useState('')
-
-  const handleChangeMessage = (event) => {
-    setMessage(event.target.value)
-  }
-
-  const handlePublish = () => {
-    PubSub.publish(topic, message)
-    console.log('send')
-  }
+  const classes = useStyles()
 
   return (
-    <div className="App">
-      <div>AWS IoT test UI</div>
+    <div className={classes.App}>
+      <div>KSHIKOIHAKO</div>
       <div>
-        <label>MESSAGE:
-          <input type="text" onChange={handleChangeMessage}></input>
-        </label>
+        <Button variant="contained" color="primary" size="large" onClick={open}>Open</Button>
+        <Button variant="contained" color="secondary" size="large" onClick={close}>Close</Button>
       </div>
-      <button onClick={handlePublish}>publish</button>
     </div>
   )
 }
