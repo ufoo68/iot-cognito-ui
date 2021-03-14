@@ -21,13 +21,10 @@ Amplify.addPluggable(new AWSIoTProvider({
   clientId: cryptoRandomString({length: 10}),
 }))
 
+const topic = process.env.REACT_APP_TOPIC
+
 const App = () => {
   const [message, setMessage] = useState('')
-  const [topic, setTopic] = useState('')
-
-  const handleChangeTopic = (event) => {
-    setTopic(event.target.value)
-  }
 
   const handleChangeMessage = (event) => {
     setMessage(event.target.value)
@@ -41,11 +38,6 @@ const App = () => {
   return (
     <div className="App">
       <div>AWS IoT test UI</div>
-      <div>
-        <label>TOPIC:
-          <input type="text" onChange={handleChangeTopic}></input>
-        </label>
-      </div>
       <div>
         <label>MESSAGE:
           <input type="text" onChange={handleChangeMessage}></input>
