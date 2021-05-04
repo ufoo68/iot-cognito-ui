@@ -5,6 +5,8 @@ import { AWSIoTProvider } from '@aws-amplify/pubsub'
 import cryptoRandomString from 'crypto-random-string'
 import Button from '@material-ui/core/Button'
 import { makeStyles } from '@material-ui/core/styles'
+import closeImg from './close.png'
+import openImg from './open.png'
 import '@aws-amplify/ui/dist/style.css'
 
 Amplify.configure({
@@ -22,8 +24,6 @@ Amplify.addPluggable(new AWSIoTProvider({
   clientId: cryptoRandomString({ length: 10 }),
 }))
 
-const topic = process.env.REACT_APP_TOPIC
-
 const useStyles = makeStyles(() => ({
   App: {
     display: 'flex',
@@ -32,26 +32,51 @@ const useStyles = makeStyles(() => ({
     flexDirection: 'column',
     fontSize: '2rem',
   },
+  Button: {
+    display: 'flex',
+    flexDirection: 'column',
+  }
 }))
 
-const open = () => {
-  PubSub.publish(`${topic}/open`, 'open')
-}
-
-const close = () => {
-  PubSub.publish(`${topic}/close`, 'close')
+const updateBoxStatus = (status) => {
+  PubSub.publish(`$aws/things/${process.env.REACT_APP_DEVICE_NAME}/shadow/update`, {
+    state: { desired: { boxStatus: status } }
+  })
 }
 
 const App = () => {
   const classes = useStyles()
+  const [boxStatus, setBoxStatus] = useState('close')
+  PubSub.publish(`$aws/things/${process.env.REACT_APP_DEVICE_NAME}/shadow/get`, '')
+  PubSub.subscribe([
+    `$aws/things/${process.env.REACT_APP_DEVICE_NAME}/shadow/update/accepted`,
+    `$aws/things/${process.env.REACT_APP_DEVICE_NAME}/shadow/get/accepted`
+  ]).subscribe({
+    next: data => {
+      // console.log('recieved: ', data)
+      const rBoxStatus = data.value.state?.reported?.boxStatus
+      if (rBoxStatus && rBoxStatus != boxStatus) {
+        setBoxStatus(rBoxStatus)
+      }
+    },
+    error: error => console.error(error),
+    close: () => console.log('Done'),
+  })
 
   return (
     <div className={classes.App}>
       <div>KSHIKOIHAKO</div>
-      <div>
-        <Button variant="contained" color="primary" size="large" onClick={open}>Open</Button>
-        <Button variant="contained" color="secondary" size="large" onClick={close}>Close</Button>
-      </div>
+      {
+        boxStatus === 'open' ?
+        <div className={classes.Button}>
+          <img src={openImg} />
+          <Button variant="contained" color="secondary" size="large" onClick={() => updateBoxStatus('close')}>Close</Button>
+        </div> :
+        <div className={classes.Button}>
+          <img src={closeImg} />
+          <Button variant="contained" color="primary" size="large" onClick={() => updateBoxStatus('open')}>Open</Button>
+        </div>
+      }
     </div>
   )
 }
