@@ -9,6 +9,7 @@
     "@testing-library/user-event": "^12.1.10",
     "aws-amplify": "^3.3.10",
     "aws-amplify-react": "^4.2.14",
+    "axios": "^0.21.1",
     "crypto-random-string": "^3.3.0",
     "firebase": "^8.7.0",
     "react": "^17.0.1",

@@ -7,6 +7,7 @@ import Button from '@material-ui/core/Button'
 import { makeStyles } from '@material-ui/core/styles'
 import closeImg from './close.png'
 import openImg from './open.png'
+import { sendFcm } from './fcm'
 import '@aws-amplify/ui/dist/style.css'
 
 Amplify.configure({
@@ -38,15 +39,16 @@ const useStyles = makeStyles(() => ({
   }
 }))
 
-const updateBoxStatus = (status) => {
-  PubSub.publish(`$aws/things/${process.env.REACT_APP_DEVICE_NAME}/shadow/update`, {
-    state: { desired: { boxStatus: status } }
-  })
-}
-
 const App = () => {
   const classes = useStyles()
   const [boxStatus, setBoxStatus] = useState('close')
+  const [fcmToken, setFcmToken] = useState('')
+  const updateBoxStatus = async (status) => {
+    PubSub.publish(`$aws/things/${process.env.REACT_APP_DEVICE_NAME}/shadow/update`, {
+      state: { desired: { boxStatus: status } }
+    })
+    await sendFcm(status, fcmToken)
+  }
   PubSub.publish(`$aws/things/${process.env.REACT_APP_DEVICE_NAME}/shadow/get`, '')
   PubSub.subscribe([
     `$aws/things/${process.env.REACT_APP_DEVICE_NAME}/shadow/update/accepted`,
@@ -62,20 +64,22 @@ const App = () => {
     error: error => console.error(error),
     close: () => console.log('Done'),
   })
+  navigator.serviceWorker.addEventListener('message', (event) => setFcmToken(event.data.fcmToken))
+  navigator.serviceWorker.controller.postMessage('getToken')
 
   return (
     <div className={classes.App}>
       <div>KSHIKOIHAKO</div>
       {
         boxStatus === 'open' ?
-        <div className={classes.Button}>
-          <img src={openImg} />
-          <Button variant="contained" color="secondary" size="large" onClick={() => updateBoxStatus('close')}>Close</Button>
-        </div> :
-        <div className={classes.Button}>
-          <img src={closeImg} />
-          <Button variant="contained" color="primary" size="large" onClick={() => updateBoxStatus('open')}>Open</Button>
-        </div>
+          <div className={classes.Button}>
+            <img src={openImg} />
+            <Button variant="contained" color="secondary" size="large" onClick={async () => await updateBoxStatus('close')}>Close</Button>
+          </div> :
+          <div className={classes.Button}>
+            <img src={closeImg} />
+            <Button variant="contained" color="primary" size="large" onClick={async () => await updateBoxStatus('open')}>Open</Button>
+          </div>
       }
     </div>
   )
