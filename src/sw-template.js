@@ -18,20 +18,14 @@ if (typeof importScripts === 'function') {
 
     self.registration.showNotification(notificationTitle, notificationOptions)
   })
-  self.addEventListener('message', event => {
-    switch (event.data) {
-      case 'getToken':
-        messaging.getToken(vapiKeyEnv).then((currentToken) => {
-          if (currentToken) {
-            self.clients.matchAll().then(clients => clients.forEach(client => client.postMessage({ fcmToken: currentToken })))
-            console.log('current token for client: ', currentToken)
-          } else {
-            console.log('No registration token available. Request permission to generate one.')
-          }
-        }).catch((err) => {
-          console.log('An error occurred while retrieving token. ', err)
-        })
+  messaging.getToken(vapiKeyEnv).then((currentToken) => {
+    if (currentToken) {
+      console.log('current token for client: ', currentToken)
+    } else {
+      console.log('No registration token available. Request permission to generate one.')
     }
+  }).catch((err) => {
+    console.log('An error occurred while retrieving token. ', err)
   })
 
   if (workbox) {

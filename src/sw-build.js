@@ -5,7 +5,7 @@ const buildSW = () => {
   workboxBuild
     .injectManifest({
       swSrc: 'src/sw-template.js',
-      swDest: 'build/service-worker.js',
+      swDest: 'build/firebase-messaging-sw.js',
       globDirectory: 'build',
       globPatterns: ['**/*.{png}'],
     })
